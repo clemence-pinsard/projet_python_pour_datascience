@@ -54,7 +54,7 @@ Présenter les statisques descriptives et visualisations
 L'objectif de ce clustering est de regrouper les maladies chroniques selon la forme de leur gradient social et ainsi regarder si certaines touchent les populations les plus modestes, les plus aisées ou bien n'ont pas de gradient social marqué.
 
 Pour cela, les variables d'intérêts vont être : 
-- **varTauxLib (Dress):** 
+- **varTauxLib (Dress):** Identifiant de la maladie, par 
 
 | Variable | Source | Rôle | Valeurs possibles |
 |---|---|---|---|
