@@ -41,8 +41,10 @@ Voici les liens des pages où nous avons trouvé ces données :
 ### 2.2 Variables d'intérêt
 
 Voici une liste de nos variables d'intérêts : 
+- **type (Drees) :** prévalence ou incidence
+- **varGroupage / valGroupage (Dress) :** la variable de ventilation et sa modalité (ex. décile de revenu, CSP, diplôme...)
+- **varPartition / valPartition (Drees) :** : une éventuelle partition supplémentaire par région ou par sexe
 - **varTauxLib (Drees):** 
-- **valGroupage (Drees):** 
 - **txStandDir (Drees) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
 - **taux_pauvrete (Insee Filosofi) :** Indicateur direct de précarité économique (comparable au découpage par décile du dataset Dress)
 - **revenu_median (Insee Filosofi) :** Complément au taux de pauvreté et capte les inégalités au sein de la région
