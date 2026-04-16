@@ -27,24 +27,36 @@ unzip <nom_fichier>.zip
 
 ### 2.1 Jeu de données utilisés
 
-Ce projet mobilise deux sources de données complémentaires :
+Ce projet mobilise deux sources de données complémentaires issues des **données Drees (ER 1243)**. On récupère dans un premier temps la table maladie_chronique qui contient des variables telles que le taux de prévalence et d'incidence de maladies chroniques ventilés par variables socio-démographiques. Ainsi que la table et libelles qui permet de décoder les codes des modalités présents dans les colonnes `valGroupage` et `valPartition`.
 
-- **Les données Drees (ER 1243)** : taux de prévalence et d'incidence de maladies chroniques ventilés par variables socio-démographiques, disponibles sur data.gouv.fr
-- **Les données Insee (Filosofi)** : indicateurs socio-économiques par région (taux de pauvreté, revenu médian), également disponibles sur data.gouv.fr
+Ces données sont disponibles sur data.gouv.fr. Les données sont ensuite chargées directement via l'API de data.gouv.fr, ce qui garantit la reproductibilité du projet.
 
-Les deux sources sont chargées directement via l'API de data.gouv.fr, ce qui garantit la reproductibilité du projet.
-
-Voici les liens des pages où nous avons trouvé ces données : 
+Voici le lien de la page où nous avons trouvé ces données : 
 - **Inégalités sociales face aux maladies chroniques (ER 1243) :** https://www.data.gouv.fr/datasets/inegalites-sociales-face-aux-maladies-chroniques-er-1243
 
 ### 2.2 Variables d'intérêt
 
 Voici une liste de nos variables d'intérêts : 
-- **type (Drees) :** prévalence ou incidence
-- **varGroupage / valGroupage (Dress) :** la variable de ventilation et sa modalité (ex. décile de revenu, CSP, diplôme...)
-- **varPartition / valPartition (Drees) :** : une éventuelle partition supplémentaire par région ou par sexe
-- **varTauxLib (Drees):** 
-- **txStandDir (Drees) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
+- **poids1 (maladies_chroniques) :** Nombre de personnes atteintes
+- **poidsTot (maladies_chroniques) :** Population totale du groupe observé
+- **txNonStand (maladies_chroniques) :** Taux brut observé
+- **txStandDir (maladies_chroniques) :** taux standardisé par méthode directe, utilisé pour comparer les groupes indépendamment de leur âge
+- **txStandDirModBB et txStandDirModBH (maladies_chroniques) :** Bornes de l'intervalle de confiance du taux standardisé
+- **txStandIndir (et ses bornes BB/BH) (maladies_chroniques) :** Taux standardisé par la méthode indirecte
+
+- **type (maladies_chroniques) :** indique s'il s'agit de données de prévalence (nombre de cas à l'instant T) ou d'incidence (nombre de cas sur une période)
+- **varTaux (maladies_chroniques) :** Code technique de la pathologie (ex : TOP_CVIC_CHR)
+- **varTauxLib (maladies chroniques) :** Libellé complet de la maladie (ex: "Insuffisance cardiaque chronique")
+- **cat (maladies_chroniques) :** Code de la grande catégorie de maladies
+- **catLib (maladies_chroniques) :** Nom de la grande catégorie de maladies
+- **I_cat (maladies_chroniques) :** Indicateur binaire utilisé pour distinguer les catégories
+
+- **varGroupage / valGroupage (maladies_chroniques) :** la variable de ventilation et sa modalité (ex : décile de revenu, CSP, diplôme...)
+- **varPartition / valPartition (maladies_chroniques) :** : Type/code de la zone géographique
+
+- **var (libelles) :** Nom de la variable codée (ex: EAR_DIPLR_S pour le diplôme)
+- **moda (libelles) :** Code de la modalité
+- **moda_lib (libelles) :** Libellé compréhensible
 
 ## 3. Statistiques descriptives et visualisation 
 
@@ -57,9 +69,9 @@ Présenter les statisques descriptives et visualisations
 L'objectif de ce clustering est de regrouper les maladies chroniques selon la forme de leur gradient social et ainsi regarder si certaines touchent les populations les plus modestes, les plus aisées ou bien n'ont pas de gradient social marqué.
 
 Pour cela, les variables d'intérêts vont être : 
-- **varTauxLib (Drees):** Identifiant de la maladie dont les valeurs possibles peuvent être "Diabète", "Maladies cardiovasculaires" ... 
-- **valGroupage (Drees):** Décile de revenu dont les valeurs possibles 1 (plus modeste) jusqu'à 10 (plus aisé)
-- **txStandDir (Drees) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
+- **varTauxLib (maladies_chroniques):** Identifiant de la maladie dont les valeurs possibles peuvent être "Diabète", "Maladies cardiovasculaires" ... 
+- **valGroupage (maladies_chroniques):** Décile de revenu dont les valeurs possibles 1 (plus modeste) jusqu'à 10 (plus aisé)
+- **txStandDir (maladies_chroniques) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
 
 Nous allons appliqué des filtres : 
 - `varGroupage == 'FISC_NIVVIEM_E2015_S_moy_10'` pour ne garder que la ventilation par décile de revenu
@@ -76,9 +88,9 @@ On utilise `txStandDir` (taux standardisé par la méthode directe) plutôt que 
 L'objectif est d'identifier quels facteurs socio-économiques (niveau de vie, diplôme, catégorie socioprofessionnelle) sont les plus associés au taux de prévalence des maladies chroniques.
 
 Pour cela, nos variables d'intérêts vont être :
-- **txStandDir (Drees) :** Notre variable cible qui correspond au taux de prévalence standardisé
-- **varGroupage (Drees) :** Une de nos variables explicatives donc le code qui nous intéresse est `FISC_NIVVIEM_E2015_S_moy_10` (décile de niveau de vie)
-- **varTauxLib_ (Drees) :** Une autre de nos variables explicatives 
+- **txStandDir (maladies_chroniques) :** Notre variable cible qui correspond au taux de prévalence standardisé
+- **varGroupage (maladies_chroniques) :** Une de nos variables explicatives donc le code qui nous intéresse est `FISC_NIVVIEM_E2015_S_moy_10` (décile de niveau de vie)
+- **varTauxLib_ (maladies_chroniques) :** Une autre de nos variables explicatives 
 
 Nous allons appliqué des filtres :
 - `varGroupage == 'FISC_NIVVIEM_E2015_S_moy_10'` pour ne garder que la ventilation par décile
