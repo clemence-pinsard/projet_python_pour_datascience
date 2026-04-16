@@ -77,20 +77,15 @@ L'objectif est d'identifier quels facteurs socio-économiques (niveau de vie, di
 
 Pour cela, nos variables d'intérêts vont être :
 - **txStandDir (Drees) :** Notre variable cible qui correspond au taux de prévalence standardisé
-- **varGroupage (Drees) :** (explication variable) donc les codes qui nous intéressent sont `FISC_NIVVIEM_E2015_S_moy_10` (décile de niveau de vie), `EAR_DIPLR_S` (diplôme), `EAR_GS_S` (CSP).
-
-Pour cela, une jointure entre les deux datasets est nécessaire. Elle est réalisé sur les codes régions quand la variable `valGroupage` du dataset Drees répond à la condition suivante `varGroupage == 'FISC_REG_S'` avec la variable `code_region` du dataset Insee.
+- **varGroupage (Drees) :** Une de nos variables explicatives donc le code qui nous intéresse est `FISC_NIVVIEM_E2015_S_moy_10` (décile de niveau de vie)
+- **varTauxLib_ (Drees) :** Une autre de nos variables explicatives 
 
 Nous allons appliqué des filtres :
+- `varGroupage == 'FISC_NIVVIEM_E2015_S_moy_10'` pour ne garder que la ventilation par décile
 - `type == 'prevalence'` pour travailler uniquement sur la prévalence
 - `varPartition` est vide pour avoir une vue nationale sans sous-partition par sexe
-- Les lignes où `txStandDir` est manquant sont exclues.
 
-**Pourquoi ces variables ?**  
-Ces trois dimensions sont les déterminants socio-économiques classiques en épidémiologie sociale. Les utiliser conjointement dans une régression permet d'identifier lequel contribue le plus à expliquer les écarts de prévalence, toutes choses égales par ailleurs.
-
-On construit alors un dataset où chaque ligne correspond à une combinaison (maladie × modalité socio-démo). Le décile de revenu est traité comme variable numérique (ordinal 1→10). Le diplôme et la CSP sont des variables 
-catégorielles encodées en indicatrices (one-hot encoding) avant d'entrer dans le modèle.
+**Interprétation attendue du coefficient `decile` :**  Un coefficient négatif confirmera que les maladies chroniques touchent davantage les personnes modestes. Sa valeur indique de combien le taux de prévalence varie en moyenne quand on passe d'un décile au suivant, toutes maladies égales par ailleurs.
 
 ## 5. Structure de notre dépôt
 
