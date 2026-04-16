@@ -41,7 +41,11 @@ Voici les liens des pages où nous avons trouvé ces données :
 ### 2.2 Variables d'intérêt
 
 Voici une liste de nos variables d'intérêts : 
-- **Dd**
+- **varTauxLib (Drees):** 
+- **valGroupage (Drees):** 
+- **txStandDir (Drees) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
+- **taux_pauvrete (Insee Filosofi) :** Indicateur direct de précarité économique (comparable au découpage par décile du dataset Dress)
+- **revenu_median (Insee Filosofi) :** Complément au taux de pauvreté et capte les inégalités au sein de la région
 
 ## 3. Statistiques descriptives et visualisation 
 
@@ -54,32 +58,41 @@ Présenter les statisques descriptives et visualisations
 L'objectif de ce clustering est de regrouper les maladies chroniques selon la forme de leur gradient social et ainsi regarder si certaines touchent les populations les plus modestes, les plus aisées ou bien n'ont pas de gradient social marqué.
 
 Pour cela, les variables d'intérêts vont être : 
-- **varTauxLib (Dress):** Identifiant de la maladie, par 
+- **varTauxLib (Drees):** Identifiant de la maladie dont les valeurs possibles peuvent être "Diabète", "Maladies cardiovasculaires" ... 
+- **valGroupage (Drees):** Décile de revenu dont les valeurs possibles 1 (plus modeste) jusqu'à 10 (plus aisé)
+- **txStandDir (Drees) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
 
-| Variable | Source | Rôle | Valeurs possibles |
-|---|---|---|---|
-| `varTauxLib` | DREES | Identifiant de la maladie (index de la matrice) | Ex. "Diabète", "Maladies cardiovasculaires"... |
-| `valGroupage` | DREES | Décile de revenu (colonnes de la matrice) | 1 (plus modeste) à 10 (plus aisé) |
-| `txStandDir` | DREES | Taux de prévalence standardisé direct (valeur de la matrice) | Taux entre 0 et 1 |
-
-**Filtres appliqués :**
-- `varGroupage == 'FISC_NIVVIEM_E2015_S_moy_10'` : on ne garde que la ventilation 
-  par décile de revenu
-- `type == 'prevalence'` : on travaille sur la prévalence uniquement
-- `varPartition` est vide : on prend la vue nationale, sans partition régionale ou par sexe
+Nous allons appliqué des filtres : 
+- `varGroupage == 'FISC_NIVVIEM_E2015_S_moy_10'` pour ne garder que la ventilation par décile de revenu
+- `type == 'prevalence'` pour travailler uniquement sur la prévalence
+- `varPartition` est vide pour ne garder que la vue nationale (ne pas travailler par région ou sexe)
 
 **Pourquoi ces variables ?**  
-L'objectif du clustering est de caractériser la *forme* du gradient social de chaque 
-maladie. Le décile de revenu est la variable la plus directe pour cela : en construisant 
-un profil décile 1 → décile 10 pour chaque maladie, on capture si la maladie touche 
-plutôt les plus modestes, les plus aisés, ou de manière uniforme.
-
-**Remarque sur la standardisation des taux :**  
-On utilise `txStandDir` (taux standardisé par la méthode directe) plutôt que 
-`txNonStand` afin de s'affranchir des effets de structure d'âge et de sexe 
-entre les groupes — ce qui permet une comparaison plus juste entre déciles.
+L'objectif du clustering est de caractériser la *forme* du gradient social de chaque maladie. Le décile de revenu est la variable la plus directe pour cela : en construisant un profil décile 1 → décile 10 pour chaque maladie, on capture si la maladie touche plutôt les plus modestes, les plus aisés, ou de manière uniforme.
+ 
+On utilise `txStandDir` (taux standardisé par la méthode directe) plutôt que `txNonStand` afin de s'affranchir des effets de structure d'âge et de sexe entre les groupes — ce qui permet une comparaison plus juste entre déciles.
 
 ### 4.2 Regression : déterminants socio-économiques du taux de prévalance
+
+L'objectif est d'identifier quels indicateurs socio-économiques régionaux (taux de pauvreté, revenu médian...) sont les plus associés au taux de prévalence des maladies chroniques. On travaillera dans ce cas à l'échelle régionale.
+
+Pour cela, nos variables d'intérêts vont être :
+- **txStandDir (Drees) :** Notre variable cible qui correspond au taux de prévalence standardisé par région, toutes maladies confondues
+- **taux_pauvrete (Insee Filosofi) :** Une de nos variables explicatives qui est un indicateur direct de précarité économique (comparable au découpage par décile du dataset Dress)
+- **revenu_median (Insee Filosofi) :** Une autre de nos variables explicatives qui est u complément au taux de pauvreté et capte les inégalités au sein de la région
+
+Pour cela, une jointure entre les deux datasets est nécessaire. Elle est réalisé sur les codes régions quand la variable `valGroupage` du dataset Drees répond à la condition suivante `varGroupage == 'FISC_REG_S'` avec la variable `code_region` du dataset Insee.
+
+Nous allons appliqué des filtres :
+- `varGroupage == 'FISC_REG_S'` pour ne garder que la ventilation ventilation par région
+- `type == 'prevalence'` pour travailler uniquement sur la prévalence
+- `varPartition` est vide pour avoir une vue nationale sans sous-partition par sexe
+
+**Pourquoi ces variables ?**  
+Le taux de pauvreté et le revenu médian sont les indicateurs régionaux les plus directement comparables avec les déciles de niveau de vie utilisés dans le dataset DREES. Ils permettent de tester si les régions structurellement plus défavorisées présentent des taux de prévalence plus élevés.
+
+Attention cependant à certaines limites potentielles : Le nombre d'observations est contraint par le nombre de régions françaises (13 en métropole, potentiellement 18 avec l'outre-mer). Ce faible N limite la puissance 
+statistique du modèle — les résultats sont à interpréter avec prudence et ne peuvent pas être généralisés à l'échelle individuelle.
 
 ## 5. Structure de notre dépôt
 
