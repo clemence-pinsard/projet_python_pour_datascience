@@ -36,7 +36,6 @@ Les deux sources sont chargées directement via l'API de data.gouv.fr, ce qui ga
 
 Voici les liens des pages où nous avons trouvé ces données : 
 - **Inégalités sociales face aux maladies chroniques (ER 1243) :** https://www.data.gouv.fr/datasets/inegalites-sociales-face-aux-maladies-chroniques-er-1243
-- **Filosofi :** https://www.data.gouv.fr/datasets/carroyage-filosofi-revenus-pauvrete-et-niveau-de-vie-en-2019-1
 
 ### 2.2 Variables d'intérêt
 
@@ -46,8 +45,6 @@ Voici une liste de nos variables d'intérêts :
 - **varPartition / valPartition (Drees) :** : une éventuelle partition supplémentaire par région ou par sexe
 - **varTauxLib (Drees):** 
 - **txStandDir (Drees) :** Taux de prévalense standardisé direct dont les valeurs sont comprises entre 0 et 1
-- **taux_pauvrete (Insee Filosofi) :** Indicateur direct de précarité économique (comparable au découpage par décile du dataset Dress)
-- **revenu_median (Insee Filosofi) :** Complément au taux de pauvreté et capte les inégalités au sein de la région
 
 ## 3. Statistiques descriptives et visualisation 
 
@@ -76,25 +73,24 @@ On utilise `txStandDir` (taux standardisé par la méthode directe) plutôt que 
 
 ### 4.2 Regression : déterminants socio-économiques du taux de prévalance
 
-L'objectif est d'identifier quels indicateurs socio-économiques régionaux (taux de pauvreté, revenu médian...) sont les plus associés au taux de prévalence des maladies chroniques. On travaillera dans ce cas à l'échelle régionale.
+L'objectif est d'identifier quels facteurs socio-économiques (niveau de vie, diplôme, catégorie socioprofessionnelle) sont les plus associés au taux de prévalence des maladies chroniques.
 
 Pour cela, nos variables d'intérêts vont être :
-- **txStandDir (Drees) :** Notre variable cible qui correspond au taux de prévalence standardisé par région, toutes maladies confondues
-- **taux_pauvrete (Insee Filosofi) :** Une de nos variables explicatives qui est un indicateur direct de précarité économique (comparable au découpage par décile du dataset Dress)
-- **revenu_median (Insee Filosofi) :** Une autre de nos variables explicatives qui est u complément au taux de pauvreté et capte les inégalités au sein de la région
+- **txStandDir (Drees) :** Notre variable cible qui correspond au taux de prévalence standardisé
+- **varGroupage (Drees) :** (explication variable) donc les codes qui nous intéressent sont `FISC_NIVVIEM_E2015_S_moy_10` (décile de niveau de vie), `EAR_DIPLR_S` (diplôme), `EAR_GS_S` (CSP).
 
 Pour cela, une jointure entre les deux datasets est nécessaire. Elle est réalisé sur les codes régions quand la variable `valGroupage` du dataset Drees répond à la condition suivante `varGroupage == 'FISC_REG_S'` avec la variable `code_region` du dataset Insee.
 
 Nous allons appliqué des filtres :
-- `varGroupage == 'FISC_REG_S'` pour ne garder que la ventilation ventilation par région
 - `type == 'prevalence'` pour travailler uniquement sur la prévalence
 - `varPartition` est vide pour avoir une vue nationale sans sous-partition par sexe
+- Les lignes où `txStandDir` est manquant sont exclues.
 
 **Pourquoi ces variables ?**  
-Le taux de pauvreté et le revenu médian sont les indicateurs régionaux les plus directement comparables avec les déciles de niveau de vie utilisés dans le dataset DREES. Ils permettent de tester si les régions structurellement plus défavorisées présentent des taux de prévalence plus élevés.
+Ces trois dimensions sont les déterminants socio-économiques classiques en épidémiologie sociale. Les utiliser conjointement dans une régression permet d'identifier lequel contribue le plus à expliquer les écarts de prévalence, toutes choses égales par ailleurs.
 
-Attention cependant à certaines limites potentielles : Le nombre d'observations est contraint par le nombre de régions françaises (13 en métropole, potentiellement 18 avec l'outre-mer). Ce faible N limite la puissance 
-statistique du modèle — les résultats sont à interpréter avec prudence et ne peuvent pas être généralisés à l'échelle individuelle.
+On construit alors un dataset où chaque ligne correspond à une combinaison (maladie × modalité socio-démo). Le décile de revenu est traité comme variable numérique (ordinal 1→10). Le diplôme et la CSP sont des variables 
+catégorielles encodées en indicatrices (one-hot encoding) avant d'entrer dans le modèle.
 
 ## 5. Structure de notre dépôt
 
