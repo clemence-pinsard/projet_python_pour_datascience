@@ -64,11 +64,14 @@ def plot_bivariate_metropole(geodf, var1, var2, label_x, label_y):
 
         # Tracé de la carte
         temp_df.plot(column='bi_class', cmap=cmap_bi, ax=ax, edgecolor='black', linewidth=0.3)
-        ax.set_title(patho, fontsize=14, fontweight='bold')
+        
+        # Titre tronqué si trop long + taille réduite
+        titre = patho if len(patho) <= 35 else patho[:33] + '…'
+        ax.set_title(titre, fontsize=11, fontweight='bold')
         ax.axis('off')
 
         # Légende miniature
-        ax_leg = ax.inset_axes([0.80, 0.1, 0.15, 0.15]) 
+        ax_leg = ax.inset_axes([0.05, 0.1, 0.15, 0.15])
         for y in range(3):
             for x in range(3):
                 ax_leg.add_patch(plt.Rectangle((x, y), 1, 1, color=bi_colors[x + y*3]))
@@ -82,6 +85,17 @@ def plot_bivariate_metropole(geodf, var1, var2, label_x, label_y):
 
     for j in range(i + 1, len(axes)):
         axes[j].axis('off')
+
+    # Note de lecture globale intégrée dans la figure
+    fig.text(
+        0.5, 0.01,
+        "Lecture : chaque région est colorée selon la combinaison de deux variables (terciles). "
+        "Bleu foncé = forte prévalence chez les modestes, faible inégalité. "
+        "Rouge foncé = forte prévalence ET forte inégalité (territoires les plus vulnérables). "
+        "Violet = forte inégalité, faible prévalence absolue.",
+        ha='center', fontsize=9, style='italic', color='gray'
+    )
+
 
     plt.suptitle(f"Analyse Bivariée (France Métropolitaine) : {label_x} vs {label_y}",
                  fontsize=20, y=1.01)
