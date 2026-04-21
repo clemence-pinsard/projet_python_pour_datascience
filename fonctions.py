@@ -27,15 +27,10 @@ def calc_ratio_dip(group):
     return group
 
 
-def plot_bivariate_metropole(geodf, var1, var2, label_x, label_y):
-    # 1. Filtrage pour ne garder que la Métropole
-    # On exclut les codes régions de l'Outre-mer (971, 972, 973, 974, 976)
-    codes_drom = ['01', '02', '03', '04', '06', '971', '972', '973', '974', '976']
-    geodf_metropole = geodf[~geodf['code'].isin(codes_drom)].copy()
+def plot_bivariate(geodf, var1, var2, label_x, label_y):
 
-    pathologies = geodf_metropole['catLib'].unique()
+    pathologies = geodf['catLib'].unique()
 
-    # Paramètres de la grille
     n_cols = 2
     n_rows = (len(pathologies) + n_cols - 1) // n_cols
 
@@ -43,35 +38,31 @@ def plot_bivariate_metropole(geodf, var1, var2, label_x, label_y):
     axes = axes.flatten()
 
     bi_colors = [
-        "#e8e8e8", "#b0d5df", "#64acbe", # y=0 (Bas)
-        "#e4acac", "#ad9ea5", "#627f8c", # y=1 (Moyen)
-        "#c85a5a", "#985356", "#574249"  # y=2 (Haut)
+        "#e8e8e8", "#b0d5df", "#64acbe",
+        "#e4acac", "#ad9ea5", "#627f8c",
+        "#c85a5a", "#985356", "#574249"
     ]
     cmap_bi = mcolors.ListedColormap(bi_colors)
 
     for i, patho in enumerate(pathologies):
         ax = axes[i]
-        temp_df = geodf_metropole[geodf_metropole['catLib'] == patho].copy()
+        temp_df = geodf[geodf['catLib'] == patho].copy()
 
         if len(temp_df) < 3:
             ax.axis('off')
             continue
 
-        # Calcul des terciles
         temp_df['x_cat'] = pd.qcut(temp_df[var1].rank(method='first'), 3, labels=[0, 1, 2])
         temp_df['y_cat'] = pd.qcut(temp_df[var2].rank(method='first'), 3, labels=[0, 1, 2])
         temp_df['bi_class'] = temp_df['x_cat'].astype(int) + temp_df['y_cat'].astype(int) * 3
 
-        # Tracé de la carte
         temp_df.plot(column='bi_class', cmap=cmap_bi, ax=ax, edgecolor='black', linewidth=0.3)
-        
-        # Titre tronqué si trop long + taille réduite
+
         titre = patho if len(patho) <= 35 else patho[:33] + '…'
         ax.set_title(titre, fontsize=11, fontweight='bold')
         ax.axis('off')
 
-        # Légende miniature
-        ax_leg = ax.inset_axes([0.05, 0.1, 0.15, 0.15])
+        ax_leg = ax.inset_axes([0.80, 0.05, 0.15, 0.15])
         for y in range(3):
             for x in range(3):
                 ax_leg.add_patch(plt.Rectangle((x, y), 1, 1, color=bi_colors[x + y*3]))
@@ -86,18 +77,7 @@ def plot_bivariate_metropole(geodf, var1, var2, label_x, label_y):
     for j in range(i + 1, len(axes)):
         axes[j].axis('off')
 
-    # Note de lecture globale intégrée dans la figure
-    fig.text(
-        0.5, 0.01,
-        "Lecture : chaque région est colorée selon la combinaison de deux variables (terciles). "
-        "Bleu foncé = forte prévalence chez les modestes, faible inégalité. "
-        "Rouge foncé = forte prévalence ET forte inégalité (territoires les plus vulnérables). "
-        "Violet = forte inégalité, faible prévalence absolue.",
-        ha='center', fontsize=9, style='italic', color='gray'
-    )
-
-
-    plt.suptitle(f"Analyse Bivariée (France Métropolitaine) : {label_x} vs {label_y}",
+    plt.suptitle(f"Analyse Bivariée (France entière) : {label_x} vs {label_y}",
                  fontsize=20, y=1.01)
     plt.tight_layout()
     plt.show()
