@@ -4,7 +4,7 @@
 
 Problématique : Dans quelle mesure le niveau socio-économique détermine-t-il l'exposition aux maladies chroniques en France, et quelles pathologies présentent le gradient social le plus marqué ?
 
-Résumé court à écrire
+Ce projet analyse les inégalités sociales face aux maladies chroniques en France à partir des données DREES (ER 1243), chargées via l'API data.gouv.fr. Il combine visualisations (gradients sociaux par revenu et diplôme, cartographies régionales), un clustering K-Means des pathologies selon leur profil d'inégalité, et une régression linéaire quantifiant l'effet du décile de revenu sur la prévalence.
 
 ## 1. Comment lancer notre code ?
 
@@ -60,7 +60,9 @@ Voici une liste de nos variables d'intérêts :
 
 ## 3. Statistiques descriptives et visualisation 
 
-Présenter les statisques descriptives et visualisations 
+## 3. Statistiques descriptives et visualisation
+
+L'analyse descriptive couvre : la justification de la standardisation par l'âge (5.1), le gradient social par décile de revenu (5.2–5.3), l'effet du diplôme (5.4), et une cartographie régionale bivariée des inégalités (5.5).
 
 ## 4. Modélisation : choix du modèle et des variables
 

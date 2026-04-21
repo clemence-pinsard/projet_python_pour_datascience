@@ -1,2 +1,18 @@
-.csv
-.xlsx
+# Données brutes
+*.csv
+*.xlsx
+
+# Cache HTTP (requests-cache)
+*.sqlite
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
